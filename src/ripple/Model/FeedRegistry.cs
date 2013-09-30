@@ -56,14 +56,41 @@ namespace ripple.Model
                 }
                 NugetCredentialsProvider.Instance.AddCredentials(feed.Url, new NetworkCredential(feed.Username, feed.Password));
             }
+            var stability = DetectStability(feed); 
 
             if (feed.Mode == UpdateMode.Fixed)
             {
-                return new NugetFeed(feed.Url, feed.Stability);
+                return new NugetFeed(feed.Url, stability);
             }
 
-            return new FloatingFeed(feed.Url, feed.Stability);
+            return new FloatingFeed(feed.Url, stability);
         }
+
+        // Start stability hack until https://github.com/DarthFubuMVC/ripple/issues/123
+        NugetStability DetectStability(Feed feed)
+        {
+            var configuredStability = feed.Stability;
+
+            if (configuredStability == NugetStability.ReleasedOnly)
+                return configuredStability;
+
+            if (!BranchDetector.CanDetectBranch())
+                return configuredStability;
+
+            var branchName = BranchDetector.Current().ToLower();
+
+            if (branchName == "master" ||
+                branchName.StartsWith("hotfix-") ||
+                branchName.StartsWith("release-"))
+            {
+                RippleLog.Info("Detected git branch: {0}, forcing stability to 'Released'".ToFormat(branchName));
+
+                return NugetStability.ReleasedOnly;
+            }
+
+            return configuredStability;
+        }
+        //end hack
 
         private const string BranchPlaceholder = "{branch}";
 
