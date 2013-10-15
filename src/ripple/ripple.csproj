@@ -33,6 +33,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="FubuCore">
@@ -236,7 +237,6 @@
     <Compile Include="Steps\UpdateNuspecs.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="app.config" />
     <None Include="ripple.dependencies.config" />
     <EmbeddedResource Include="Runners\run-git.cmd" />
     <EmbeddedResource Include="Runners\run-rake.cmd" />
