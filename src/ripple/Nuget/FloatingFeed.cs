@@ -20,7 +20,17 @@ namespace ripple.Nuget
                 return "/Packages()?$filter=IsAbsoluteLatestVersion&$orderby=DownloadCount%20desc,Id&$skip={0}&$top=100";
             }
         }
-            
+
+        public string FindLatestFor
+        {
+            get
+            {
+                if (_stability == NugetStability.ReleasedOnly)
+                    return "/Packages()?$filter=(Id%20eq%20'{0}')%20and%20IsLatestVersion&$orderby=DownloadCount%20desc,Id&$skip={1}&$top=100";
+
+                return "/Packages()?$filter=(Id%20eq%20'{0}')%20and%20IsAbsoluteLatestVersion&$orderby=DownloadCount%20desc,Id&$skip={1}&$top=100";
+            }
+        }
 
         private bool _dumped;
         private readonly Lazy<IEnumerable<IRemoteNuget>> _latest; 
@@ -46,6 +56,21 @@ namespace ripple.Nuget
             return new NugetXmlFeed(document).ReadAll(this).ToArray();
         }
 
+        private IEnumerable<IRemoteNuget> loadLatestFor(int page, string name)
+        {
+            var toSkip = (page - 1) * 100;
+            var url = Url + FindLatestFor.ToFormat(name, toSkip);
+            RippleLog.Debug("Retrieving latest from " + url);
+
+            var client = new WebClient();
+            var text = client.DownloadString(url);
+
+            var document = new XmlDocument();
+            document.LoadXml(text);
+
+            return new NugetXmlFeed(document).ReadAll(this).ToArray();
+        }
+
         public IEnumerable<IRemoteNuget> GetLatest()
         {
             return _latest.Value;
@@ -56,6 +81,22 @@ namespace ripple.Nuget
             var all = new List<IRemoteNuget>();
             var page = 1;
             var results = loadLatestFeed(page);
+            all.AddRange(results);
+            while (results.Count() == 100)
+            {
+                page++;
+                results = loadLatestFeed(page);
+                all.AddRange(results);
+            }
+
+            return all;
+        }
+
+        private IEnumerable<IRemoteNuget> getLatestFor(string name)
+        {
+            var all = new List<IRemoteNuget>();
+            var page = 1;
+            var results = loadLatestFor(page, name);
             all.AddRange(results);
             while (results.Count() == 100)
             {
@@ -88,7 +129,7 @@ namespace ripple.Nuget
 
         protected override IRemoteNuget findLatest(Dependency query)
         {
-            var floatedResult = GetLatest().SingleOrDefault(x => query.MatchesName(x.Name));
+            var floatedResult = getLatestFor(query.Name).FirstOrDefault();
             RippleLog.Debug("Looking for " + query + " in " + Url + "; Found " + floatedResult);
             if (floatedResult != null && query.Mode == UpdateMode.Fixed && floatedResult.IsUpdateFor(query))
             {
