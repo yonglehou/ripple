@@ -15,7 +15,8 @@ namespace ripple.Model
 
 		public Feed()
 		{
-            Stability = NugetStability.ReleasedOnly;
+            stability = NugetStability.ReleasedOnly;
+		    StabilityConvention = FeedStabilityConventions.None;
 		}
 
 		public Feed(string url)
@@ -39,14 +40,35 @@ namespace ripple.Model
 		public string Url { get; set; }
 		[XmlAttribute]
 		public UpdateMode Mode { get; set; }
-        [XmlAttribute]
-        public NugetStability Stability { get; set; }
+
+	    [XmlAttribute]
+	    public NugetStability Stability
+	    {
+	        get
+	        {
+	            return stability;
+	        }
+	        set
+	        {
+                IsStabilitySet = true;
+	            stability = value;
+	        }
+	    }
+
+       
+	    NugetStability stability;
+
+	    public bool IsStabilitySet { get; set; }
+
         [XmlAttribute]
         public string Password { get; set; }
         [XmlAttribute]
         public string Username { get; set; }
+           
+        [XmlAttribute]
+        public FeedStabilityConventions StabilityConvention { get; set; }
 
-		public INugetFeed GetNugetFeed()
+	    public INugetFeed GetNugetFeed()
 		{
 			return FeedRegistry.FeedFor(this);
 		}
@@ -111,6 +133,12 @@ namespace ripple.Model
         public static Feed FromPath(string path)
         {
             return new Feed("file://" + path.ToFullPath().Replace("\\", "/"));
+        }
+
+        public enum FeedStabilityConventions
+        {
+            None = 1,
+            GitFlow = 2
         }
 	}
 }

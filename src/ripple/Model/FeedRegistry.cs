@@ -21,6 +21,8 @@ namespace ripple.Model
     {
         private readonly Cache<Feed, INugetFeed> _feeds;
 
+        public Solution Config { get; set; }
+
         public FeedProvider()
         {
             _feeds = new Cache<Feed, INugetFeed>(buildFeed);
@@ -56,7 +58,7 @@ namespace ripple.Model
                 }
                 NugetCredentialsProvider.Instance.AddCredentials(feed.Url, new NetworkCredential(feed.Username, feed.Password));
             }
-            var stability = DetectStability(feed); 
+            var stability = DetectStability(feed);
 
             if (feed.Mode == UpdateMode.Fixed)
             {
@@ -69,13 +71,30 @@ namespace ripple.Model
         // Start stability hack until https://github.com/DarthFubuMVC/ripple/issues/123
         NugetStability DetectStability(Feed feed)
         {
-            var configuredStability = feed.Stability;
+            switch (feed.StabilityConvention)
+            {
+                case Feed.FeedStabilityConventions.GitFlow:
+                    return GitFlowConventionalStability(feed);
+                case Feed.FeedStabilityConventions.None:
+                    return feed.Stability;
+                default:
+                    throw new InvalidOperationException("Unknown stability convention: " + feed.StabilityConvention);
+            }
+        }
 
-            if (configuredStability == NugetStability.ReleasedOnly)
-                return configuredStability;
+        NugetStability GitFlowConventionalStability(Feed feed)
+        {
+            RippleLog.Info("GitFlow conventional stability is enabled, stability will be set according to the current branch");
+
+            if (feed.IsStabilitySet)
+            {
+                throw new InvalidOperationException("Stability can't be set explicitly when running with gitflow stability conventions. Please remove either Stability or StabilityConvention from the configuration of feed " + feed.Url);
+            }
 
             if (!BranchDetector.CanDetectBranch())
-                return configuredStability;
+            {
+                throw new InvalidOperationException("Current git branch could not be detected, this is required if GiFlow conventional stability is configured for the feed");
+            }
 
             var branchName = BranchDetector.Current().ToLower();
 
@@ -87,9 +106,9 @@ namespace ripple.Model
 
                 return NugetStability.ReleasedOnly;
             }
-
-            return configuredStability;
+            return NugetStability.Anything;
         }
+
         //end hack
 
         private const string BranchPlaceholder = "{branch}";
