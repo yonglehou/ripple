@@ -74,7 +74,7 @@ namespace ripple.Model
             switch (feed.StabilityConvention)
             {
                 case Feed.FeedStabilityConventions.GitFlow:
-                    return GitFlowConventionalStability(feed);
+                    return GitFlowConventionalStability();
                 case Feed.FeedStabilityConventions.None:
                     return feed.Stability;
                 default:
@@ -82,14 +82,9 @@ namespace ripple.Model
             }
         }
 
-        NugetStability GitFlowConventionalStability(Feed feed)
+        NugetStability GitFlowConventionalStability()
         {
             RippleLog.Info("GitFlow conventional stability is enabled, stability will be set according to the current branch");
-
-            if (feed.IsStabilitySet)
-            {
-                throw new InvalidOperationException("Stability can't be set explicitly when running with gitflow stability conventions. Please remove either Stability or StabilityConvention from the configuration of feed " + feed.Url);
-            }
 
             if (!BranchDetector.CanDetectBranch())
             {
