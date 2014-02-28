@@ -58,7 +58,7 @@ namespace ripple.Steps
                 .Each(projectRef =>
                 {
                     var target = groups.FirstOrDefault(x => x.Projects.Contains(projectRef));
-                    if (target == null) return;
+                    if (target == null || target.Spec.Name == nuspec.Name) return;
 
                     // TODO -- Do we need another setting for project references?
                     var constraint = Solution.NuspecSettings.Float;
@@ -81,7 +81,7 @@ namespace ripple.Steps
                   var target = groups.Where(g=>g!=group)
                         .FirstOrDefault(x => x.Projects.Any(p => p.Name == projectRef.Split(' ').First()));
 
-                    if (target == null) return;
+                  if (target == null || target.Spec.Name == nuspec.Name) return;
 
                     var constraint = Solution.NuspecSettings.Float;
                     var version = constraint.SpecFor(new SemanticVersion(input.VersionFlag));

@@ -59,6 +59,11 @@ namespace ripple.Local
 
         public void AddDependency(NuspecDependency dependency)
         {
+            if (dependency.Name == Name)
+            {
+                throw new InvalidOperationException("Can't add a dependency to the package it self");    
+            }
+
             var dependencies = _document.XPathSelectElement("//nuspec:dependencies", _xmlNamespaceManager);
 
             foreach (XElement dependencyElement in dependencies.Nodes())
