@@ -29,10 +29,16 @@ namespace ripple.Model
         }
 
         public Feed(string url, UpdateMode mode, NugetStability stability)
+            : this(url, mode, stability, FeedStabilityConventions.None)
+        {
+        }
+
+        public Feed(string url, UpdateMode mode, NugetStability stability, FeedStabilityConventions stabilityConventions)
         {
             Url = url.TrimEnd('/');
             Mode = mode;
             Stability = stability;
+            StabilityConvention = stabilityConventions;
         }
 
         [XmlAttribute]
