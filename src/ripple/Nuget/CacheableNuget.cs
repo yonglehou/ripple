@@ -36,7 +36,7 @@ namespace ripple.Nuget
 
 		public override string ToString()
 		{
-			return "Download and cache {0}".ToFormat(Filename);
+			return "From feed and caching {0}".ToFormat(Filename);
 		}
 
 		public void Describe(Description description)

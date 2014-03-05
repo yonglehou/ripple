@@ -24,6 +24,19 @@ namespace ripple.Nuget
                     return null;
                 }
 
+                if (nuget == null)
+                {
+                    return null;
+                }
+
+                var cache = FeedRegistry.CacheFor(solution);
+                var cachedNuget = cache.Find(new Dependency(dependency.Name, nuget.Version, dependency.Mode));
+                
+                if (cachedNuget != null)
+                {
+                    return cachedNuget;
+                }
+
                 return nuget;
             });
 
