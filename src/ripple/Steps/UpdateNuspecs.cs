@@ -30,6 +30,12 @@ namespace ripple.Steps
                 .DetermineDependencies()
                 .Each(dependency =>
                 {
+
+                    if (dependency.Name.ToLower().EndsWith(".sources") || dependency.Name.ToLower().EndsWith("-codeonly"))
+                    {
+                        RippleLog.Info("Source only package dependency detected, ignoring: " + dependency.Name);
+                        return;
+                    }
                     var constraint = Solution.ConstraintFor(dependency);
 
                     SemanticVersion semver;
@@ -81,7 +87,10 @@ namespace ripple.Steps
                   var target = groups.Where(g=>g!=group)
                         .FirstOrDefault(x => x.Projects.Any(p => p.Name == projectRef.Split(' ').First()));
 
-                  if (target == null || target.Spec.Name == nuspec.Name) return;
+                    if (target == null || target.Spec.Name == nuspec.Name)
+                    {
+                        return;
+                    }
 
                     var constraint = Solution.NuspecSettings.Float;
                     var version = constraint.SpecFor(new SemanticVersion(input.VersionFlag));
@@ -95,5 +104,7 @@ namespace ripple.Steps
 
             nuspec.SaveChanges();
         }
+
+
     }
 }
