@@ -49,9 +49,7 @@ namespace ripple.Steps
                     return;
                 }
 
-                var directoryName = nuget.Name.Replace(".Sources", "").Replace("-CodeOnly","");
-
-                nuget.ExplodeSourcesTo(Path.Combine(project.Directory, "App_Packages", directoryName));
+                nuget.ExplodeSourcesTo(project.Directory);
             });
         }
 
