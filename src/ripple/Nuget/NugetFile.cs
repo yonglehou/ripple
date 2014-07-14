@@ -72,13 +72,13 @@ namespace ripple.Nuget
             return ExplodedDirectory(solution.PackagesDirectory());
         }
 
-        public void ExplodeSourcesTo(string directory)
+        public void ExplodeSourcesTo(string directory, string root)
         {
             RippleLog.Info("Exploding source only package {0} to {1}".ToFormat(Name,directory));
             
             var fileSystem = new FileSystem();
             fileSystem.CreateDirectory(directory);
-            fileSystem.ForceClean(directory);
+            fileSystem.ForceClean(Path.Combine(directory, root));
 
             var package = new ZipPackage(_path);
 

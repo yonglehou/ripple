@@ -49,7 +49,7 @@ namespace ripple.Steps
                     return;
                 }
 
-                nuget.ExplodeSourcesTo(project.Directory);
+                nuget.ExplodeSourcesTo(project.Directory, "App_Packages");
             });
         }
 

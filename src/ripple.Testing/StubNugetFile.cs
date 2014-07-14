@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using FubuCore;
 using NuGet;
 using ripple.Model;
@@ -45,7 +46,7 @@ namespace ripple.Testing
 			return solution.PackagesDirectory().AppendPath(Name);
 		}
 
-	    public void ExplodeSourcesTo(string directory)
+        public void ExplodeSourcesTo(string directory, string root)
 	    {
 	        throw new NotImplementedException();
 	    }

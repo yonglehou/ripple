@@ -14,7 +14,7 @@ namespace ripple.Nuget
 	    INugetFile CopyTo(string directory);
 
 	    string NugetFolder(Solution solution);
-        void ExplodeSourcesTo(string directory);
+        void ExplodeSourcesTo(string directory, string root);
         bool IsSourceOnlyPackage();
     }
 }
